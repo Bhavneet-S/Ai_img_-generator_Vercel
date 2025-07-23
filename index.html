@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI Image Generator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #121212;
+      color: #fff;
+      text-align: center;
+      padding: 2rem;
+    }
+    input, button {
+      padding: 0.7rem;
+      margin: 1rem 0;
+      border-radius: 5px;
+      font-size: 1rem;
+    }
+    #image {
+      margin-top: 2rem;
+      max-width: 100%;
+      border: 2px solid #444;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🧠 AI Image Generator</h1>
+  <p>Enter your prompt below to generate an AI image</p>
+  
+  <input type="text" id="prompt" placeholder="e.g., A futuristic city at night" size="40"/>
+  <br/>
+  <button onclick="generateImage()">Generate Image</button>
+  
+  <p id="status"></p>
+  <img id="image" src="" alt="Generated image will appear here"/>
+
+  <script>
+    async function generateImage() {
+      const prompt = document.getElementById("prompt").value;
+      const status = document.getElementById("status");
+      const image = document.getElementById("image");
+
+      if (!prompt) {
+        status.textContent = "⚠️ Please enter a prompt!";
+        return;
+      }
+
+      status.textContent = "⏳ Generating image...";
+      image.src = "";
+
+      try {
+        const response = await fetch("/api/generate-image", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt })
+        });
+
+        const data = await response.json();
+        if (data.data && data.data[0].url) {
+          image.src = data.data[0].url;
+          status.textContent = "✅ Image generated below 👇";
+        } else {
+          status.textContent = "❌ Failed to generate image.";
+        }
+      } catch (error) {
+        console.error(error);
+        status.textContent = "❌ Error: " + error.message;
+      }
+    }
+  </script>
+</body>
+</html>
